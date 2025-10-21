@@ -1,5 +1,7 @@
 # jellyfin-video-previews
 
+confirmed working on 10.11.0
+
 https://github.com/user-attachments/assets/7dc72eb2-64c6-4c22-93ed-1e7ce0000c98
 
 this is an injection mod for jellyfin that adds a live video previews when mouse over is done
