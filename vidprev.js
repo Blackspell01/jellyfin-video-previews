@@ -125,19 +125,19 @@
                 }
             }
             const startTimeTicks = config.previewStartTime * 10000000;
-            let videoUrl = `${domain}/Videos/${videoId}/stream?static=true&api_key=${token}&StartTimeTicks=${startTimeTicks}`;
-            console.debug(`Attempting direct playback for item ${videoId}: ${videoUrl}`);
-            previewVideo.src = videoUrl;
-            previewVideo.playbackRate = config.playbackSpeed;
-            previewVideo.style.display = "block";
-            previewOverlay.style.display = "block";
-            currentVideo = previewVideo;
-            try {
-                await previewVideo.play();
-                return;
-            } catch (e) {
-                console.warn(`Direct playback failed for item ${videoId}:`, e);
-            }
+            // Direct play (auskommentiert):
+            // let videoUrl = `${domain}/Videos/${videoId}/stream?static=true&api_key=${token}&StartTimeTicks=${startTimeTicks}`;
+            // previewVideo.src = videoUrl;
+            // previewVideo.playbackRate = config.playbackSpeed;
+            // previewVideo.style.display = "block";
+            // previewOverlay.style.display = "block";
+            // currentVideo = previewVideo;
+            // try {
+            //     await previewVideo.play();
+            //     return;
+            // } catch (e) {
+            //     console.warn(`Direct playback failed for item ${videoId}:`, e);
+            // }
             const transcodeHeight = Math.round(config.transcodeWidth * 9 / 16);
             videoUrl = `${domain}/Videos/${videoId}/stream.mp4?api_key=${token}&VideoCodec=h264&AudioCodec=aac&Width=${config.transcodeWidth}&Height=${transcodeHeight}&StartTimeTicks=${startTimeTicks}`;
             console.debug(`Falling back to transcoded video for item ${videoId}: ${videoUrl}`);
