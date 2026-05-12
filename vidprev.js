@@ -5,7 +5,7 @@
     // hoverDelay: Delay before playing preview in milliseconds
     // transcodeWidth: Width for transcoded video in pixels (default 320)
     const config = {
-        previewStartTime: 840,
+        previewStartTime: 200,
         playbackSpeed: 1.0,
         hoverDelay: 100,
         transcodeWidth: 320
@@ -139,7 +139,7 @@
             //     console.warn(`Direct playback failed for item ${videoId}:`, e);
             // }
             const transcodeHeight = Math.round(config.transcodeWidth * 9 / 16);
-            const pbInfoResp = await fetch(`${domain}/Items/${videoId}/PlaybackInfo?userId=${userId}&api_key=${token}&StartTimeTicks=${startTimeTicks}`, {
+            const pbInfoResp = await fetch(`${domain}/Items/${videoId}/PlaybackInfo?userId=${userId}&api_key=${token}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -157,12 +157,17 @@
             const pbInfo = await pbInfoResp.json();
             const transcodingUrl = pbInfo.MediaSources?.[0]?.TranscodingUrl;
             if (!transcodingUrl) { console.warn('No TranscodingUrl in PlaybackInfo'); return; }
-            const videoUrl = `${domain}${transcodingUrl}&MaxWidth=${config.transcodeWidth}&MaxHeight=${transcodeHeight}`;
+            const videoUrl = `${domain}${transcodingUrl}`;
             previewVideo.src = videoUrl;
             previewVideo.playbackRate = config.playbackSpeed;
             previewVideo.style.display = "block";
             previewOverlay.style.display = "block";
             currentVideo = previewVideo;
+            if (config.previewStartTime > 0) {
+                previewVideo.addEventListener('loadedmetadata', () => {
+                    previewVideo.currentTime = config.previewStartTime;
+                }, { once: true });
+            }
             await previewVideo.play();
         } catch (e) {
             console.error(`Error playing preview for item ${itemId}:`, e);
