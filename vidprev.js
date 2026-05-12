@@ -15,6 +15,8 @@
     let currentVideo = null;
     let token = null;
     let hoverTimeout = null;
+    let activePlaySessionId = null;
+    let activeDeviceId = null;
 
     const previewOverlay = document.createElement("div");
     previewOverlay.id = "preview-overlay";
@@ -65,6 +67,11 @@
         if (currentVideo) {
             currentVideo.pause();
             currentVideo = null;
+        }
+        if (activePlaySessionId && activeDeviceId) {
+            fetch(`${window.location.origin}/Videos/ActiveEncodings?deviceId=${activeDeviceId}&playSessionId=${activePlaySessionId}&api_key=${token}`, { method: 'DELETE' });
+            activePlaySessionId = null;
+            activeDeviceId = null;
         }
         currentHoverElement = null;
     };
@@ -155,9 +162,11 @@
                 })
             });
             const pbInfo = await pbInfoResp.json();
-            const transcodingUrl = pbInfo.MediaSources?.[0]?.TranscodingUrl;
-            if (!transcodingUrl) { console.warn('No TranscodingUrl in PlaybackInfo'); return; }
-            const videoUrl = `${domain}${transcodingUrl}`;
+            const mediaSource = pbInfo.MediaSources?.[0];
+            if (!mediaSource?.TranscodingUrl) { console.warn('No TranscodingUrl in PlaybackInfo'); return; }
+            activePlaySessionId = pbInfo.PlaySessionId;
+            activeDeviceId = new URLSearchParams(mediaSource.TranscodingUrl).get('DeviceId');
+            const videoUrl = `${domain}${mediaSource.TranscodingUrl}`;
             previewVideo.src = videoUrl;
             previewVideo.playbackRate = config.playbackSpeed;
             previewVideo.style.display = "block";
