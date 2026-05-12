@@ -32,6 +32,7 @@
 
     const previewVideo = document.createElement("video");
     previewVideo.muted = true;
+    previewVideo.setAttribute('playsinline', '');
     previewVideo.controls = false;
     previewVideo.style.cssText = `
         width: 100%;
