@@ -139,8 +139,25 @@
             //     console.warn(`Direct playback failed for item ${videoId}:`, e);
             // }
             const transcodeHeight = Math.round(config.transcodeWidth * 9 / 16);
-            videoUrl = `${domain}/Videos/${videoId}/stream.mp4?api_key=${token}&VideoCodec=h264&AudioCodec=aac&Width=${config.transcodeWidth}&Height=${transcodeHeight}&StartTimeTicks=${startTimeTicks}`;
-            console.debug(`Falling back to transcoded video for item ${videoId}: ${videoUrl}`);
+            const pbInfoResp = await fetch(`${domain}/Items/${videoId}/PlaybackInfo?userId=${userId}&api_key=${token}&StartTimeTicks=${startTimeTicks}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    DeviceProfile: {
+                        MaxStreamingBitrate: 2000000,
+                        TranscodingProfiles: [{ Container: 'mp4', Type: 'Video', Protocol: 'hls', AudioCodec: 'aac', VideoCodec: 'h264' }],
+                        DirectPlayProfiles: [],
+                        ResponseProfiles: [],
+                        ContainerProfiles: [],
+                        CodecProfiles: [],
+                        SubtitleProfiles: []
+                    }
+                })
+            });
+            const pbInfo = await pbInfoResp.json();
+            const transcodingUrl = pbInfo.MediaSources?.[0]?.TranscodingUrl;
+            if (!transcodingUrl) { console.warn('No TranscodingUrl in PlaybackInfo'); return; }
+            const videoUrl = `${domain}${transcodingUrl}&MaxWidth=${config.transcodeWidth}&MaxHeight=${transcodeHeight}`;
             previewVideo.src = videoUrl;
             previewVideo.playbackRate = config.playbackSpeed;
             previewVideo.style.display = "block";
@@ -300,6 +317,7 @@
         return;
     }
     token = creds.token;
+    const userId = creds.userId;
     console.log("Script initialized");
     observeNavigation();
     window.addEventListener('click', handleClick);
