@@ -134,9 +134,6 @@
             currentVideo = previewVideo;
             try {
                 await previewVideo.play();
-                if (config.previewStartTime > 0) {
-                    previewVideo.currentTime = config.previewStartTime;
-                }
                 return;
             } catch (e) {
                 console.warn(`Direct playback failed for item ${videoId}:`, e);
@@ -150,9 +147,6 @@
             previewOverlay.style.display = "block";
             currentVideo = previewVideo;
             await previewVideo.play();
-            if (config.previewStartTime > 0) {
-                previewVideo.currentTime = config.previewStartTime;
-            }
         } catch (e) {
             console.error(`Error playing preview for item ${itemId}:`, e);
             clearPreview();
