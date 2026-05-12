@@ -41,7 +41,6 @@
         pointer-events: none;
     `;
     previewOverlay.appendChild(previewVideo);
-    document.body.appendChild(previewOverlay);
 
     const getCredentials = () => {
         const creds = localStorage.getItem("jellyfin_credentials");
@@ -61,8 +60,8 @@
             hoverTimeout = null;
         }
         previewVideo.src = "";
-        previewVideo.style.display = "none";
         previewOverlay.style.display = "none";
+        previewOverlay.remove();
         if (currentVideo) {
             currentVideo.pause();
             currentVideo = null;
@@ -110,11 +109,7 @@
         clearPreview();
         try {
             const domain = window.location.origin;
-            const rect = container.getBoundingClientRect();
-            previewOverlay.style.width = `${rect.width}px`;
-            previewOverlay.style.height = `${rect.height}px`;
-            previewOverlay.style.top = `${rect.top + window.scrollY}px`;
-            previewOverlay.style.left = `${rect.left + window.scrollX}px`;
+            container.appendChild(previewOverlay);
             const itemResp = await fetch(`${domain}/Items/${itemId}?api_key=${token}`);
             if (!itemResp.ok) {
                 console.warn(`Failed to fetch item ${itemId}: ${itemResp.status}`);
@@ -184,7 +179,7 @@
             console.warn(`No itemId found for container`, container);
             return;
         }
-        const posTarget = hoverTarget.querySelector('.cardBox') || hoverTarget;
+        const posTarget = hoverTarget.querySelector('.cardImageContainer') || hoverTarget.querySelector('.cardBox') || hoverTarget;
         const handleMouseEnter = () => {
             if (currentHoverElement !== hoverTarget) {
                 clearPreview();
