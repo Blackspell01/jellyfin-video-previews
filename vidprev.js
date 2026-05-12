@@ -178,16 +178,18 @@
             hoverTarget = parentListItem;
         } else {
             itemId = container.querySelector('button[data-id]')?.getAttribute('data-id');
+            hoverTarget = container.closest('.card') || container;
         }
         if (!itemId) {
             console.warn(`No itemId found for container`, container);
             return;
         }
+        const posTarget = hoverTarget.querySelector('.cardBox') || hoverTarget;
         const handleMouseEnter = () => {
             if (currentHoverElement !== hoverTarget) {
                 clearPreview();
                 currentHoverElement = hoverTarget;
-                hoverTimeout = setTimeout(() => playPreview(itemId, container), config.hoverDelay);
+                hoverTimeout = setTimeout(() => playPreview(itemId, posTarget), config.hoverDelay);
             }
         };
         const handleMouseLeave = () => {
@@ -206,9 +208,9 @@
                 if (mutation.addedNodes.length) {
                     mutation.addedNodes.forEach(node => {
                         if (node.nodeType === Node.ELEMENT_NODE) {
-                            const cards = node.matches('.cardOverlayContainer, .listItemImage.listItemImage-large.itemAction')
+                            const cards = node.matches('.card, .listItemImage.listItemImage-large.itemAction')
                                 ? [node]
-                                : node.querySelectorAll('.cardOverlayContainer, .listItemImage.listItemImage-large.itemAction');
+                                : node.querySelectorAll('.card, .listItemImage.listItemImage-large.itemAction');
                             cards.forEach(card => {
                                 if (!card.dataset.listenerAttached) {
                                     attachHoverListeners(card);
@@ -223,7 +225,7 @@
             childList: true,
             subtree: true
         });
-        document.querySelectorAll('.cardOverlayContainer:not([data-listener-attached]), .listItemImage.listItemImage-large.itemAction:not([data-listener-attached])').forEach(card => {
+        document.querySelectorAll('.card:not([data-listener-attached]), .listItemImage.listItemImage-large.itemAction:not([data-listener-attached])').forEach(card => {
             attachHoverListeners(card);
         });
     };
